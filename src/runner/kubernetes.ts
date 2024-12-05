@@ -43,15 +43,16 @@ export class KubernetesRunner extends Runner {
 
     public async checkJob(id: string): Promise<boolean> {
         // Check if the job is running
-        const res = await this.kubeApi.listNamespacedPod(
-            process.env.KUBERNETES_NAMESPACE ?? "renovate-executor",
-            undefined,
-            undefined,
-            undefined,
-            undefined,
-            `batchId=${id}`,
-            1,
-        )
+        const res = await this.kubeApi
+            .listNamespacedPod(
+                process.env.KUBERNETES_NAMESPACE ?? "renovate-executor",
+                undefined,
+                undefined,
+                undefined,
+                undefined,
+                `batchId=${id}`,
+                1,
+            )
             .catch(() => {
                 return { body: { items: [] } };
             });
@@ -62,9 +63,7 @@ export class KubernetesRunner extends Runner {
         // Check if the pod is still running
         // => if not delete the pod
         const pod = res.body.items[0];
-        if (
-            pod.status?.phase !== "Running" && pod.status?.phase !== "Pending"
-        ) {
+        if (pod.status?.phase !== "Running" && pod.status?.phase !== "Pending") {
             await this.deletePod(pod.metadata?.name ?? "");
             return false;
         }
@@ -72,70 +71,66 @@ export class KubernetesRunner extends Runner {
     }
 
     public async runJob(batch: Batch): Promise<void> {
-        await this.kubeApi
-            .createNamespacedPod(
-                process.env.KUBERNETES_NAMESPACE ?? "renovate-executor",
-                {
-                    apiVersion: "v1",
-                    kind: "Pod",
-                    metadata: {
-                        name: `renovate-${batch.id}`,
-                        labels: {
-                            batchId: batch.id,
+        await this.kubeApi.createNamespacedPod(process.env.KUBERNETES_NAMESPACE ?? "renovate-executor", {
+            apiVersion: "v1",
+            kind: "Pod",
+            metadata: {
+                name: `renovate-${batch.id}`,
+                labels: {
+                    batchId: batch.id,
+                },
+            },
+            spec: {
+                containers: [
+                    {
+                        name: "renovate",
+                        image: this.getRenovateImage(),
+                        restartPolicy: "Never",
+                        resources: {
+                            requests: {
+                                cpu: process.env.KUBERNETES_CPU_REQUEST ?? "1000m",
+                                memory: process.env.KUBERNETES_MEMORY_REQUEST ?? "1024Mi",
+                            },
+                            limits: {
+                                cpu: process.env.KUBERNETES_CPU_LIMIT ?? "2000m",
+                                memory: process.env.KUBERNETES_MEMORY_LIMIT ?? "2048Mi",
+                            },
                         },
-                    },
-                    spec: {
-                        containers: [
+                        envFrom: [
+                            // Secret Env
                             {
-                                name: "renovate",
-                                image: this.getRenovateImage(),
-                                restartPolicy: "Never",
-                                resources: {
-                                    requests: {
-                                        cpu: process.env.KUBERNETES_CPU_REQUEST ?? "1000m",
-                                        memory: process.env.KUBERNETES_MEMORY_REQUEST ?? "1024Mi",
-                                    },
-                                    limits: {
-                                        cpu: process.env.KUBERNETES_CPU_LIMIT ?? "2000m",
-                                        memory: process.env.KUBERNETES_MEMORY_LIMIT ?? "2048Mi",
-                                    },
+                                secretRef: {
+                                    name: "renovate-secret",
                                 },
-                                envFrom: [
-                                    // Secret Env
-                                    {
-                                        secretRef: {
-                                            name: "renovate-secret",
-                                        },
-                                    },
-                                ],
-                                env: [
-                                    {
-                                        name: "RENOVATE_REPOSITORIES",
-                                        value: JSON.stringify(batch.repositories.map((repo) => repo.path))
-                                    }
-                                ],
-                                volumeMounts: [
-                                    // Config Map at /tmp/config/${renovate.config.file.name}
-                                    {
-                                        name: "renovate-config",
-                                        mountPath: "/tmp/config/"
-                                    },
-                                ],
                             },
                         ],
-                        volumes: [
+                        env: [
+                            {
+                                name: "RENOVATE_REPOSITORIES",
+                                value: JSON.stringify(batch.repositories.map((repo) => repo.path)),
+                            },
+                        ],
+                        volumeMounts: [
+                            // Config Map at /tmp/config/${renovate.config.file.name}
                             {
                                 name: "renovate-config",
-                                configMap: {
-                                    defaultMode: 420,
-                                    name: "renovate-config"
-                                },
+                                mountPath: "/tmp/config/",
                             },
                         ],
-                        restartPolicy: "Never",
                     },
-                },
-            );
+                ],
+                volumes: [
+                    {
+                        name: "renovate-config",
+                        configMap: {
+                            defaultMode: 420,
+                            name: "renovate-config",
+                        },
+                    },
+                ],
+                restartPolicy: "Never",
+            },
+        });
     }
 
     public async cleanUp(): Promise<void> {
@@ -151,9 +146,7 @@ export class KubernetesRunner extends Runner {
         );
         // Delete all pods that are not running or pending
         for (const pod of res.body.items) {
-            if (
-                pod.status?.phase !== "Running" && pod.status?.phase !== "Pending"
-            ) {
+            if (pod.status?.phase !== "Running" && pod.status?.phase !== "Pending") {
                 await this.deletePod(pod.metadata?.name ?? "");
             }
         }
@@ -161,9 +154,6 @@ export class KubernetesRunner extends Runner {
 
     private async deletePod(name: string): Promise<void> {
         console.log(`Deleting pod ${name}`);
-        await this.kubeApi.deleteNamespacedPod(
-            name,
-            process.env.KUBERNETES_NAMESPACE ?? "renovate-executor",
-        );
+        await this.kubeApi.deleteNamespacedPod(name, process.env.KUBERNETES_NAMESPACE ?? "renovate-executor");
     }
 }

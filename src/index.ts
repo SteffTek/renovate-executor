@@ -44,8 +44,7 @@ const handler = () => {
                 throw new Error("GitHub Token not set");
             }
             return new GitHubHandler({
-                endpoint: process.env.RE_GITHUB_ENDPOINT ||
-                    "https://api.github.com",
+                endpoint: process.env.RE_GITHUB_ENDPOINT || "https://api.github.com",
                 token: process.env.RE_GITHUB_TOKEN,
                 organization: process.env.RE_GITHUB_ORGANIZATION || undefined,
                 user: process.env.RE_GITHUB_USER || undefined,
@@ -56,17 +55,24 @@ const handler = () => {
     }
 };
 
+const runner = () => {
+    switch (process.env.RE_RUNTIME) {
+        case "kubernetes":
+            return new KubernetesRunner(
+                process.env.RE_RENOVATE_IMAGE ?? "renovate/renovate",
+                process.env.RE_RENOVATE_ENV ?? "./renovate.env.json",
+            );
+        default:
+            return new DockerRunner(
+                process.env.RE_RENOVATE_IMAGE ?? "renovate/renovate",
+                process.env.RE_RENOVATE_ENV ?? "./renovate.env.json",
+            );
+    }
+};
+
 // Init Kubernetes Scheduler
 const worker = new JobWorker({
-    runner: process.env.RE_RUNTIME != "kubernetes"
-        ? new DockerRunner(
-            process.env.RE_RENOVATE_IMAGE ?? "renovate/renovate",
-            process.env.RE_RENOVATE_ENV ?? "./renovate.env.json",
-        )
-        : new KubernetesRunner(
-            process.env.RE_RENOVATE_IMAGE ?? "renovate/renovate",
-            process.env.RE_RENOVATE_ENV ?? "./renovate.env.json",
-        ),
+    runner: runner(),
     maxBatchJobs: parseInt(process.env.RE_MAX_PARALLEL_CRON_JOBS || "10"),
     maxHookJobs: parseInt(process.env.RE_MAX_PARALLEL_HOOK_JOBS || "10"),
 });
