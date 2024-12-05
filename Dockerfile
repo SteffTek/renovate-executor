@@ -1,5 +1,5 @@
 # Create Build Image
-FROM node:22.9.0-alpine3.20 as build
+FROM node:22.12.0-alpine3.20 as build
 
 WORKDIR /app
 
@@ -10,7 +10,7 @@ COPY . .
 RUN npm run build
 
 # Create Production Image
-FROM node:22.9.0-alpine3.20
+FROM node:22.12.0-alpine3.20
 
 WORKDIR /app
 
