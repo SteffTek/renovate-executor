@@ -1,7 +1,7 @@
 services:
   renovate-executor:
     container_name: renovate-executor
-    image: stefftek/renovate-executor:latest
+    image: ghcr.io/stefftek/renovate-executor:1.0.0
     ports:
       - 4000:4000
     environment:
