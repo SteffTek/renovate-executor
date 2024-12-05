@@ -1,0 +1,22 @@
+name: Create Release
+
+# Create a new release when new code is pushed to the main branch
+on:
+  push:
+    branches:
+      - main
+      - develop
+  # Allow manual triggering of the workflow
+  workflow_dispatch:
+
+jobs:
+  release:
+    name: Run Semantic Release
+    uses: ./.github/workflows/step_semantic_release.yaml
+    permissions:
+      contents: write # to be able to publish a GitHub release
+      issues: write # to be able to comment on released issues
+      pull-requests: write # to be able to comment on released pull requests
+      id-token: write # to enable use of OIDC for npm provenance
+      packages: write # to be able to publish docker packages
+      attestations: write # to be able to publish attestations
