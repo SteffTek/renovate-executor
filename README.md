@@ -73,7 +73,56 @@ You can pass a renovate config file to the renovate instance. This file will be 
 Currently only the local docker socket is supported. This means that the docker executor will only work on the host machine.
 
 ## Kubernetes Executor
-W.I.P.
+
+The Kubernetes executor requires a KubeConfig file to be mounted into the container. This file is used to authenticate with the Kubernetes cluster. Alternatively, it uses the default service account for the namespace the pod is running in.
+
+```bash
+RE_RUNTIME=kubernetes                   # Set the runtime to kubernetes
+KUBERNETES_NAMESPACE=renovate-executor  # Namespace for the scheduled worker pods, default is renovate-executor
+KUBERNETES_CPU_LIMIT=2000m              # CPU limit for the worker pods, default is 2000m
+KUBERNETES_MEMORY_LIMIT=2048Mi          # Memory limit for the worker pods, default is 2048Mi
+KUBERNETES_CPU_REQUEST=1000m            # CPU request for the worker pods, default is 1000m
+KUBERNETES_MEMORY_REQUEST=1024Mi        # Memory request for the worker pods, default is 1024Mi
+```
+
+The `renovate.env.json` file in not supported for the Kubernetes executor. You have to pass all environment variables through a secret named `renovate-secret`. The secret must be created in the same namespace as the executor.
+
+```yaml
+apiVersion: v1
+kind: Secret
+metadata:
+  name: renovate-secret
+  namespace: renovate-executor
+type: Opaque
+stringData:
+  RENOVATE_CONFIG_FILE: /tmp/config/renovate.config.json    # This is the path inside the container. A ConfigMap is used to mount the file. /tmp/config is a fixed path. Name the file as you like
+  RENOVATE_TOKEN: ghp_xxxx                                  # GitHub personal access token
+```
+
+The ConfigMap for the `renovate.config.json` file must be created in the same namespace as the executor.
+
+```yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: renovate-config
+  namespace: renovate-executor
+data:
+  renovate.config.json: | # This must be the same name as the filename in the secret
+    {
+      "binarySource": "install",
+      "forkProcessing": "enabled",
+      "onboarding": true,
+      "semanticCommits": "enabled",
+      "onboardingCommitMessage": "chore: add Renovate config",
+      "onboardingConfig": {
+          "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+          "extends": ["config:recommended"]
+      },
+      "autodiscover": false,
+      "printConfig": true
+    }
+```
 
 ## GitHub Configuration
 
@@ -88,4 +137,7 @@ RE_GITHUB_ORGANIZATION=SteffTek         # Filter for repositories. Only reposito
 ```
 
 ## GitLab Configuration
+W.I.P.
+
+## Helm Chart
 W.I.P.

@@ -39,6 +39,7 @@
     "node": ">=20.6.0"
   },
   "dependencies": {
+    "@kubernetes/client-node": "^0.22.3",
     "@octokit/auth-token": "^5.1.1",
     "@octokit/rest": "^21.0.2",
     "ansi-colors": "^4.1.3",

@@ -27,7 +27,7 @@ export type Batch = {
  * @returns {string} The batch id
  */
 export function createBatchId(repositories: Array<Repository>): string {
-    const hash = crypto.createHash("sha256");
+    const hash = crypto.createHash("sha1");
     hash.update(repositories.map((repo) => repo.path).join(","));
     return hash.digest("hex");
 }

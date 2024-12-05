@@ -58,4 +58,11 @@ export abstract class Runner {
      * @returns {Promise<void>} A promise that resolves when the job is done
      */
     public abstract runJob(batch: Batch): Promise<void>;
+
+    /**
+     * cleanUp
+     * @description Clean up the runner, not needed for all runners
+     * @returns {Promise<void>} A promise that resolves when the runner is cleaned up
+     */
+    public abstract cleanUp(): Promise<void>;
 }

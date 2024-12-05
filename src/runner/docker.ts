@@ -119,4 +119,8 @@ export class DockerRunner extends Runner {
         });
         await container.start();
     }
+
+    public async cleanUp(): Promise<void> {
+        // Do nothing
+    }
 }

@@ -94,8 +94,12 @@ export class JobWorker {
      * This runs in a loop
      */
     public async handle() {
+        // Handle Batch Jobs
         await this.handleCache(this.batchCache, this.batchQueue, this.maxBatchJobs);
         await this.handleCache(this.hookCache, this.hookQueue, this.maxHookJobs);
+
+        // Clean Up Runner
+        await this.runner.cleanUp();
     }
 
     private async handleCache(cache: NodeCache, queue: { [key: string]: Batch }, maxJobs: number) {
