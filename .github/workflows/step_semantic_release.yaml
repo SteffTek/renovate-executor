@@ -4,7 +4,12 @@ on:
   workflow_call:
 
 permissions:
-  contents: read
+  contents: write # to be able to publish a GitHub release
+  issues: write # to be able to comment on released issues
+  pull-requests: write # to be able to comment on released pull requests
+  id-token: write # to enable use of OIDC for npm provenance
+  packages: write # to be able to publish docker packages
+  attestations: write # to be able to publish attestations
 
 jobs:
   release:
