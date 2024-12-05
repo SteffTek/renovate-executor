@@ -83,6 +83,7 @@ KUBERNETES_CPU_LIMIT=2000m              # CPU limit for the worker pods, default
 KUBERNETES_MEMORY_LIMIT=2048Mi          # Memory limit for the worker pods, default is 2048Mi
 KUBERNETES_CPU_REQUEST=1000m            # CPU request for the worker pods, default is 1000m
 KUBERNETES_MEMORY_REQUEST=1024Mi        # Memory request for the worker pods, default is 1024Mi
+KUBERNETES_IMAGE_PULL_SECRET=regcred    # Image pull secret for the worker pods, default is an empty string
 ```
 
 The `renovate.env.json` file in not supported for the Kubernetes executor. You have to pass all environment variables through a secret named `renovate-secret`. The secret must be created in the same namespace as the executor.
@@ -99,7 +100,7 @@ stringData:
   RENOVATE_TOKEN: ghp_xxxx                                  # GitHub personal access token
 ```
 
-The ConfigMap for the `renovate.config.json` file must be created in the same namespace as the executor.
+The ConfigMap for the `renovate.config.json` file must be created in the same namespace as the executor. Same as for the docker executor, you don't need this file to run renovate. Only if you specify the config file in the secret.
 
 ```yaml
 apiVersion: v1
