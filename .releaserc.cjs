@@ -28,8 +28,7 @@ module.exports = {
                 dockerImage: "renovate-executor",
                 dockerFile: "Dockerfile",
                 dockerRegistry: "ghcr.io",
-                dockerProject: "stefftek",
-                dockerPlatform: ["linux/amd64", "linux/arm64"],
+                dockerProject: "stefftek"
             },
         ],
     ],
