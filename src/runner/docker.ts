@@ -37,7 +37,7 @@ export class DockerRunner extends Runner {
         const env = await getRenovateEnv(this.getRenovateEnvironmentPath());
         return {
             ...env,
-            RENOVATE_REPOSITORIES: JSON.stringify(batch.repositories.map((repo) => repo.path)),
+            RENOVATE_REPOSITORIES: JSON.stringify(batch.repositories.map((repo) => repo.path))
         };
     }
 
@@ -101,6 +101,13 @@ export class DockerRunner extends Runner {
         // Use Docker API to run a container
         const envs = await this.createRepositoriesEnv(batch);
         const mount = this.createMountPath(envs);
+
+        // If mount exists, set the path to the config file
+        // => Docker Sucks
+        if (mount) {
+            envs.RENOVATE_CONFIG_FILE = mount.Target;
+        }
+
         const container = await this.docker.createContainer({
             Image: this.getRenovateImage(),
             name: batch.id,
