@@ -1,0 +1,32 @@
+node_modules
+
+# Mac Stuff
+.DS_Store
+
+# Logs
+logs
+*.log
+npm-debug.log*
+
+# Runtime data
+.wrangler
+
+# Build files
+dist
+# Terraform
+.terraform
+.terraform.lock.hcl
+
+# Local .tfstate files
+*.tfstate
+*.tfstate.backup
+
+# Secrets
+.tfvars
+.dev.vars
+.act.secrets
+secret.pgp
+.env
+.env.*
+*.env.*
+renovate.config.*
