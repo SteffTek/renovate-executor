@@ -5,7 +5,7 @@
   "scripts": {
     "build": "npm run format && npm run lint && tsc",
     "dev": "tsx watch src/index.ts",
-    "lint": "eslint .",
+    "lint": "eslint ./src",
     "format": "prettier --write ./src"
   },
   "type": "module",

@@ -37,7 +37,7 @@ export class DockerRunner extends Runner {
         const env = await getRenovateEnv(this.getRenovateEnvironmentPath());
         return {
             ...env,
-            RENOVATE_REPOSITORIES: JSON.stringify(batch.repositories.map((repo) => repo.path))
+            RENOVATE_REPOSITORIES: JSON.stringify(batch.repositories.map((repo) => repo.path)),
         };
     }
 
