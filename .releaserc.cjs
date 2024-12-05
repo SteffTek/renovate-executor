@@ -24,11 +24,16 @@ module.exports = {
         [
             "@codedependant/semantic-release-docker",
             {
-                dockerTags: ["latest", "{{version}}", "{{major}}-latest", "{{major}}.{{minor}}"],
+                dockerTags: [
+                    "{{#if prerelease.[0]}}{{prerelease.[0]}}{{else}}latest{{/if}}",
+                    "{{major}}-{{#if prerelease.[0]}}{{prerelease.[0]}}{{else}}latest{{/if}}",
+                    "{{major}}.{{minor}}-{{#if prerelease.[0]}}{{prerelease.[0]}}{{else}}latest{{/if}}",
+                    "{{version}}",
+                ],
                 dockerImage: "renovate-executor",
                 dockerFile: "Dockerfile",
                 dockerRegistry: "ghcr.io",
-                dockerProject: "stefftek"
+                dockerProject: "stefftek",
             },
         ],
     ],
