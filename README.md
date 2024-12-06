@@ -1,3 +1,5 @@
+[![Create Release](https://github.com/SteffTek/renovate-executor/actions/workflows/release.yaml/badge.svg)](https://github.com/SteffTek/renovate-executor/actions/workflows/release.yaml)
+
 # Renovate Executor
 Run an autoscaling renovate instance with webhook. Automatically schedules workload on docker or kubernetes environments.
 
