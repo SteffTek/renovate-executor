@@ -34,6 +34,12 @@ export type HandlerConfig = {
      */
     user?: string | undefined;
     /**
+     * Topics
+     * @description The topics to fetch. If not set, all repositories will be fetched.
+     * @example ["renovate"]
+     */
+    topics?: Array<string> | undefined;
+    /**
      * Repositories
      * @description The repositories to fetch. If not set, all repositories will be fetched.
      * @example ["stefftek/renovate-executor"]

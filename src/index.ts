@@ -49,6 +49,7 @@ const handler = () => {
                 organization: process.env.RE_GITHUB_ORGANIZATION || undefined,
                 user: process.env.RE_GITHUB_USER || undefined,
                 repositories: process.env.RE_REPOSITORIES?.split(",") || [],
+                topics: process.env.RE_TOPICS?.split(",") || undefined,
             });
         default:
             throw new Error(`Handler ${process.env.RE_HANDLER} not found`);

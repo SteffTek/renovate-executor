@@ -21,4 +21,10 @@ export type Repository = {
      * @example "main"
      */
     branch: string | undefined;
+    /**
+     * Topics
+     * @description The topics that are set for the repository. This will be used to filter the repositories.
+     * @example ["renovate"]
+     */
+    topics?: Array<string>;
 };

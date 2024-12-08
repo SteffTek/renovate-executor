@@ -37,6 +37,7 @@ RE_RENOVATE_ENV=./renovate.env.json # Renovate environment file. Contains all en
 
 ```bash
 RE_REPOSITORIES=SteffTek/renovate-executor # Comma separated list of repositories to process. This acts as whitelist for the renovate instance. If empty, all found repositories will be processed
+RE_TOPICS=renovate,github                  # Comma separated list of topics to filter repositories. Only repositories with these topics will be processed. This is an AND filter, so all topics must be present
 ```
 
 ## Renovate Configuration

@@ -42,6 +42,7 @@ export class GitHubHandler extends Handler {
         let repositories: Array<Repository> = [];
         const organization = this.getConfig().organization;
         const user = this.getConfig().user;
+        const topics = this.getConfig().topics;
         const predefined = this.getConfig().repositories;
 
         // Pagination Configuration
@@ -62,6 +63,7 @@ export class GitHubHandler extends Handler {
                             path: repo.full_name,
                             url: repo.html_url,
                             branch: repo.default_branch,
+                            topics: repo.topics
                         });
                     });
                     // Update Pagination
@@ -81,6 +83,15 @@ export class GitHubHandler extends Handler {
         } else if (user) {
             repositories = repositories.filter((repo) => {
                 return repo.path.toLocaleLowerCase().startsWith(`${user.toLocaleLowerCase()}/`);
+            });
+        }
+
+        // Filter out all repositories that does not have all topics
+        if (topics && topics.length > 0) {
+            repositories = repositories.filter((repo) => {
+                return topics.every((topic) => {
+                    return repo.topics?.includes(topic);
+                });
             });
         }
 
@@ -124,6 +135,7 @@ export class GitHubHandler extends Handler {
         // Get Config
         const organization = this.getConfig().organization;
         const user = this.getConfig().user;
+        const topics = this.getConfig().topics;
         const predefined = this.getConfig().repositories;
 
         // Get the repository information
@@ -134,6 +146,13 @@ export class GitHubHandler extends Handler {
             return null;
         } else if (user && owner.toLowerCase() !== user.toLowerCase()) {
             return null;
+        }
+
+        // Check if the repository has all topics
+        if (topics && topics.length > 0) {
+            if (!payload.repository.topics || !topics.every((topic) => payload.repository.topics?.includes(topic))) {
+                return null;
+            }
         }
 
         // Check if the repository is in the predefined list
