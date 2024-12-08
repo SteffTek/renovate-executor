@@ -31,6 +31,10 @@ export const cron = async ({
      */
     console.log("Starting Auto Renovate Cycle");
     const repositories = await handler.fetch();
+    if(repositories.length === 0) {
+        console.warn("No repositories found");
+        return;
+    }
     console.success(`Fetched ${repositories.length} repositories`);
     const batches: Array<Batch> = [];
     for (let i = 0; i < repositories.length; i += batch_size) {
