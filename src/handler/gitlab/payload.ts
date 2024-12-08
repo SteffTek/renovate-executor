@@ -1,18 +1,11 @@
 import { Payload } from "../../types/payload.js";
 
 export type GitLabPayload = {
-    hook: {
+    event_type: string;
+    project: {
         id: number;
-        type: string;
-        events: Array<string>;
-    };
-    repository: {
-        id: number;
-        name: string;
-        full_name: string;
-        owner: {
-            login: string;
-        };
+        web_url: string;
+        path_with_namespace: string;
         default_branch: string;
-    };
+    }
 } & Payload;

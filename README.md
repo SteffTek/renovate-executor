@@ -163,8 +163,21 @@ RE_GITHUB_USERS=SteffTek                # Filter for repositories. Only reposito
 RE_GITHUB_ORGS=SteffTek                 # Filter for repositories. Only repositories from this organization will be processed. This is a comma separated list
 ```
 
+**Note:** The `RE_GITHUB_USERS` and `RE_GITHUB_ORGS` are synonymous. Both look at the first part of the repository URL. These are only two distinct options for organizing purposes.
+
 ## GitLab Configuration
-W.I.P.
+
+As with GitHub, the GitLab configuration requires a personal access token to be able to fetch repositories. All repositories the token can access will be processed by the renovate instance. You can filter repositories similar to GitHub.
+
+```bash
+RE_HANDLER=gitlab                       # Set the handler to gitlab. Required for using GitLab as repository source
+RE_GITLAB_API=https://gitlab.com/       # GitLab URL, default is https://gitlab.com/
+RE_GITLAB_TOKEN=xxxx                    # GitLab personal access token. This is REQUIRED
+RE_GITLAB_USERS=SteffTek                # Filter for repositories. Only repositories from this user will be processed. This is a comma separated list
+RE_GITLAB_GROUPS=SteffTek               # Filter for repositories. Only repositories from this group will be processed. This is a comma separated list
+```
+
+**Note:** The `RE_GITLAB_USERS` and `RE_GITLAB_GROUPS` are synonymous. Both look at the first part of the repository URL. These are only two distinct options for organizing purposes.
 
 ## Helm Chart
 W.I.P.

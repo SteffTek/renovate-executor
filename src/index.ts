@@ -55,6 +55,18 @@ const handler = () => {
                 repositories: process.env.RE_REPOSITORIES?.split(",").filter((x) => x.length > 0) || [],
                 topics: process.env.RE_TOPICS?.split(",").filter((x) => x.length > 0) || undefined,
             });
+        case "gitlab":
+            if(!process.env.RE_GITLAB_TOKEN) {
+                throw new Error("GitLab Token not set");
+            }
+            return new GitLabHandler({
+                endpoint: process.env.RE_GITLAB_ENDPOINT || "https://gitlab.com",
+                token: process.env.RE_GITLAB_TOKEN,
+                orgs: process.env.RE_GITLAB_GROUPS?.split(",").filter((x) => x.length > 0) || undefined,
+                users: process.env.RE_GITLAB_USERS?.split(",").filter((x) => x.length > 0) || undefined,
+                repositories: process.env.RE_REPOSITORIES?.split(",").filter((x) => x.length > 0) || [],
+                topics: process.env.RE_TOPICS?.split(",").filter((x) => x.length > 0) || undefined,
+            });
         default:
             throw new Error(`Handler ${process.env.RE_HANDLER} not found`);
     }
@@ -148,6 +160,7 @@ app.use(express.urlencoded({ extended: true }));
  */
 import { swagger, swaggerDocs } from "./utils/swagger.js";
 import { createRouter } from "./router/index.js";
+import { GitLabHandler } from "./handler/gitlab/index.js";
 app.use("/docs", swagger, swaggerDocs);
 app.use(createRouter(handler(), worker));
 
