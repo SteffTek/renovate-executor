@@ -41,6 +41,7 @@
     "node": ">=20.6.0"
   },
   "dependencies": {
+    "@gitbeaker/rest": "^40.0.3",
     "@kubernetes/client-node": "^0.22.3",
     "@octokit/auth-token": "^5.1.1",
     "@octokit/rest": "^21.0.2",
