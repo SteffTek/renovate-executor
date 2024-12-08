@@ -46,10 +46,10 @@ const handler = () => {
             return new GitHubHandler({
                 endpoint: process.env.RE_GITHUB_ENDPOINT || "https://api.github.com",
                 token: process.env.RE_GITHUB_TOKEN,
-                organization: process.env.RE_GITHUB_ORGANIZATION || undefined,
-                user: process.env.RE_GITHUB_USER || undefined,
-                repositories: process.env.RE_REPOSITORIES?.split(",") || [],
-                topics: process.env.RE_TOPICS?.split(",") || undefined,
+                orgs: process.env.RE_GITHUB_ORGS?.toLocaleLowerCase().split(",").filter(x => x.length > 0) || undefined,
+                users: process.env.RE_GITHUB_USER?.toLocaleLowerCase().split(",").filter(x => x.length > 0) || undefined,
+                repositories: process.env.RE_REPOSITORIES?.split(",").filter(x => x.length > 0) || [],
+                topics: process.env.RE_TOPICS?.split(",").filter(x => x.length > 0) || undefined,
             });
         default:
             throw new Error(`Handler ${process.env.RE_HANDLER} not found`);

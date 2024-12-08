@@ -40,8 +40,8 @@ export class GitHubHandler extends Handler {
      */
     async fetch(): Promise<Array<Repository>> {
         let repositories: Array<Repository> = [];
-        const organization = this.getConfig().organization;
-        const user = this.getConfig().user;
+        const organizations = this.getConfig().orgs;
+        const users = this.getConfig().users;
         const topics = this.getConfig().topics;
         const predefined = this.getConfig().repositories;
 
@@ -75,14 +75,15 @@ export class GitHubHandler extends Handler {
                 });
         } while (pagination.last_response > 0);
 
-        // Filter out all repositories that are not in the organization or user
-        if (organization) {
+        // Filter out all repositories that are not in the organizations or users list
+        if (organizations) {
             repositories = repositories.filter((repo) => {
-                return repo.path.toLowerCase().startsWith(`${organization.toLowerCase()}/`);
+                return organizations.includes(repo.path.toLowerCase().split("/")[0]);
             });
-        } else if (user) {
+        }
+        if (users) {
             repositories = repositories.filter((repo) => {
-                return repo.path.toLocaleLowerCase().startsWith(`${user.toLocaleLowerCase()}/`);
+                return users.includes(repo.path.toLowerCase().split("/")[0]);
             });
         }
 
@@ -133,18 +134,16 @@ export class GitHubHandler extends Handler {
         }
 
         // Get Config
-        const organization = this.getConfig().organization;
-        const user = this.getConfig().user;
+        const organizations = this.getConfig().orgs;
+        const users = this.getConfig().users;
         const topics = this.getConfig().topics;
         const predefined = this.getConfig().repositories;
 
         // Get the repository information
         const [owner, repo] = payload.repository.full_name.split("/");
 
-        // Check if the repository is in the organization or user
-        if (organization && owner.toLowerCase() !== organization.toLowerCase()) {
-            return null;
-        } else if (user && owner.toLowerCase() !== user.toLowerCase()) {
+        // Check if the repository is in the organization OR user
+        if (organizations && !organizations.includes(owner) && users && !users.includes(owner)) {
             return null;
         }
 

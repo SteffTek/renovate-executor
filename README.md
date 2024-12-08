@@ -136,8 +136,8 @@ The GitHub configuration requires a personal access token to be able to fetch re
 RE_HANDLER=github                       # Set the handler to github. Required for using GitHub as repository source
 RE_GITHUB_API=https://api.github.com    # GitHub API URL, default is https://api.github.com
 RE_GITHUB_TOKEN=ghp_xxxx                # GitHub personal access token. This is REQUIRED
-RE_GITHUB_USER=SteffTek                 # Filter for repositories. Only repositories from this user will be processed. Not compatible with RE_GITHUB_ORGANIZATION
-RE_GITHUB_ORGANIZATION=SteffTek         # Filter for repositories. Only repositories from this organization will be processed. Not compatible with RE_GITHUB_USER
+RE_GITHUB_USERS=SteffTek                # Filter for repositories. Only repositories from this user will be processed. This is a comma separated list
+RE_GITHUB_ORGS=SteffTek                 # Filter for repositories. Only repositories from this organization will be processed. This is a comma separated list
 ```
 
 ## GitLab Configuration

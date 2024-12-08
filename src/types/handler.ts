@@ -25,14 +25,14 @@ export type HandlerConfig = {
      * @example "stefftek"
      * @default undefined
      */
-    organization?: string | undefined;
+    orgs?: Array<string> | undefined;
     /**
      * User
      * @description The user to fetch the repositories from. If not set, all repositories will be fetched.
      * @example "stefftek"
      * @default undefined
      */
-    user?: string | undefined;
+    users?: Array<string> | undefined;
     /**
      * Topics
      * @description The topics to fetch. If not set, all repositories will be fetched.
