@@ -14,5 +14,6 @@ export type GitHubPayload = {
             login: string;
         };
         default_branch: string;
+        topics?: Array<string>;
     };
 } & Payload;
