@@ -39,7 +39,7 @@ export class GitLabHandler extends Handler {
      * @returns {Array<Repository>} The repositories
      * @throws {Error} If the repositories could not be fetched
      */
-    async fetch(): Promise<Array<Repository>>{
+    async fetch(): Promise<Array<Repository>> {
         let repositories: Array<Repository> = [];
 
         const orgs = this.getConfig().orgs ?? [];
@@ -48,31 +48,35 @@ export class GitLabHandler extends Handler {
         const predefined = this.getConfig().repositories ?? [];
 
         await this.api.Projects.all({
-            topic: topics.join(",")
-        }).then((response) => {
-            response.forEach((project) => {
-                repositories.push({
-                    id: project.id.toString(),
-                    path: project.path_with_namespace,
-                    url: project.web_url,
-                    branch: project.default_branch,
-                    topics: project.topics ?? [],
+            topic: topics.join(","),
+        })
+            .then((response) => {
+                response.forEach((project) => {
+                    repositories.push({
+                        id: project.id.toString(),
+                        path: project.path_with_namespace,
+                        url: project.web_url,
+                        branch: project.default_branch,
+                        topics: project.topics ?? [],
+                    });
                 });
+            })
+            .catch((error) => {
+                throw new Error(`Failed to fetch repositories: ${error}`);
             });
-        }
-        ).catch((error) => {
-            throw new Error(`Failed to fetch repositories: ${error}`);
-        });
 
         // Filter out all repositories that are not in the organizations or users list
-        if(orgs.length > 0 || users.length > 0) {
+        if (orgs.length > 0 || users.length > 0) {
             repositories = repositories.filter((repo) => {
-                return orgs.includes(repo.path.toLowerCase().split("/")[0]) || users.includes(repo.path.toLowerCase().split("/")[0]);
+                return (
+                    orgs.includes(repo.path.toLowerCase().split("/")[0]) ||
+                    users.includes(repo.path.toLowerCase().split("/")[0])
+                );
             });
         }
 
         // Filter out all repositories that are not in the predefined list
-        if(predefined.length > 0) {
+        if (predefined.length > 0) {
             repositories = repositories.filter((repo) => {
                 return predefined.includes(repo.path);
             });
@@ -80,9 +84,7 @@ export class GitLabHandler extends Handler {
 
         // Filter out duplicates
         repositories = repositories.filter((repo, index, self) => {
-            return index === self.findIndex((r) => (
-                r.path === repo.path
-            ));
+            return index === self.findIndex((r) => r.path === repo.path);
         });
 
         // Sort by id
@@ -102,7 +104,7 @@ export class GitLabHandler extends Handler {
      */
     async check(headers: IncomingHttpHeaders, payload: GitLabPayload): Promise<Repository | null> {
         // Check if event is allowed
-        if(!this.checkEvent(payload.event_type)) {
+        if (!this.checkEvent(payload.event_type)) {
             return null;
         }
 
@@ -116,22 +118,24 @@ export class GitLabHandler extends Handler {
         const [owner] = payload.project.path_with_namespace.split("/");
 
         // Check if repository is org or user
-        if(orgs.length > 0 || users.length > 0) {
-            if(!orgs.includes(owner.toLocaleLowerCase()) && !users.includes(owner.toLocaleLowerCase())) {
+        if (orgs.length > 0 || users.length > 0) {
+            if (!orgs.includes(owner.toLocaleLowerCase()) && !users.includes(owner.toLocaleLowerCase())) {
                 return null;
             }
         }
 
         // Check if repository is in predefined list
-        if(predefined.length > 0) {
-            if(!predefined.includes(payload.project.path_with_namespace)) {
+        if (predefined.length > 0) {
+            if (!predefined.includes(payload.project.path_with_namespace)) {
                 return null;
             }
         }
 
         // Fetch repository from api (Topics not set in payload)
-        const project = await this.api.Projects.show(payload.project.id).catch(() => { return null; });
-        if(!project) {
+        const project = await this.api.Projects.show(payload.project.id).catch(() => {
+            return null;
+        });
+        if (!project) {
             return null;
         }
 
@@ -144,8 +148,8 @@ export class GitLabHandler extends Handler {
         };
 
         // Check if repository has all topics
-        if(topics.length > 0) {
-            if(!repository.topics || !topics.every((topic) => repository.topics?.includes(topic))) {
+        if (topics.length > 0) {
+            if (!repository.topics || !topics.every((topic) => repository.topics?.includes(topic))) {
                 return null;
             }
         }
