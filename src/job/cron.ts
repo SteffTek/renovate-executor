@@ -31,7 +31,7 @@ export const cron = async ({
      */
     console.log("Starting Auto Renovate Cycle");
     const repositories = await handler.fetch();
-    if(repositories.length === 0) {
+    if (repositories.length === 0) {
         console.warn("No repositories found");
         return;
     }

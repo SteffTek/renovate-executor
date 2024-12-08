@@ -84,7 +84,7 @@ export class KubernetesRunner extends Runner {
                 imagePullSecrets: [
                     {
                         name: process.env.KUBERNETES_IMAGE_PULL_SECRET ?? "",
-                    }
+                    },
                 ],
                 containers: [
                     {
