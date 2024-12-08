@@ -115,7 +115,7 @@ export class GitHubHandler extends Handler {
         });
 
         return repositories.sort((a, b) => {
-            return a.path.localeCompare(b.path);
+            return a.id.localeCompare(b.id);
         });
     }
 
