@@ -90,6 +90,42 @@ export class JobWorker {
     }
 
     /**
+     * Get the Batch Jobs
+     * @returns {Array<Batch>} The batch cache
+     */
+    public getBatchJobs(): Array<Batch> {
+        // Map the cache to an object
+        return this.batchCache.keys().map((key) => this.batchCache.get(key) as Batch);
+    }
+
+    /**
+     * Get the Hook Jobs
+     * @returns {Array<Batch>} The hook cache
+     */
+    public getHookJobs(): Array<Batch> {
+        // Map the cache to an object
+        return this.hookCache.keys().map((key) => this.hookCache.get(key) as Batch);
+    }
+
+    /**
+     * Get Batch Queue
+     * @returns {Array<Batch>} The batch queue
+     */
+    public getBatchQueue(): Array<Batch> {
+        // Map the queue to an object
+        return Object.values(this.batchQueue);
+    }
+
+    /**
+     * Get Hook Queue
+     * @returns {Array<Batch>} The hook queue
+     */
+    public getHookQueue(): Array<Batch> {
+        // Map the queue to an object
+        return Object.values(this.hookQueue);
+    }
+
+    /**
      * Handle Function that processes the job queue
      * This runs in a loop
      */

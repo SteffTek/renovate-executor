@@ -64,7 +64,7 @@ export class GitHubHandler extends Handler {
                             path: repo.full_name,
                             url: repo.html_url,
                             branch: repo.default_branch,
-                            topics: repo.topics
+                            topics: repo.topics,
                         });
                     });
                     // Update Pagination
@@ -172,6 +172,7 @@ export class GitHubHandler extends Handler {
                     path: response.data.full_name,
                     url: response.data.html_url,
                     branch: response.data.default_branch,
+                    topics: response.data.topics,
                 } as Repository;
             })
             .catch((error) => {

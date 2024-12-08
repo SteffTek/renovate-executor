@@ -23,7 +23,7 @@ The main configuration is done through environment variables. These are needed t
 ```bash
 RE_HANDLER=github                   # github or gitlab. Set the handler. This lets renovate-executor know which handler to use
 RE_RUNTIME=docker                   # docker or kubernetes, default is docker. Runtime specifies where the workers will be scheduled
-RE_WEBHOOK_PORT=4000                # Port for the webhook to listen on
+RE_API_PORT=4000                    # Port for the webhook to listen on
 RE_CRON_SCHEDULE="0 * * * *"        # Cron schedule for the autoscaling renovate instance
 RE_BATCH_SIZE=10                    # Number of repositories to process in a single worker batch
 RE_MAX_RETRIES=3                    # Maximum number of retries for fetching from the remote git server. If the limit is reached, the process will halt
@@ -127,6 +127,29 @@ data:
       "printConfig": true
     }
 ```
+
+## API Configuration
+
+The API configuration is used to configure the internal API server. This server is used to trigger the renovate instance to run a job.
+
+```bash
+RE_API_PORT=4000                # Port for the API server to listen on
+RE_WEBHOOK_ENABLED=true         # Enable or disable the webhook. Default is disabled
+RE_API_ENABLED=true             # Enable or disable the API server. Default is disabled
+RE_WEBHOOK_SECRET=renovate      # Secret for the webhook. If set, the webhook will only accept requests with this secret
+RE_API_SECRET=renovate          # Secret for the other API endpoints. If set, the API will only accept requests with this secret
+```
+
+### Header Validation
+
+The API automatically validates the headers of incoming requests.
+
+- For the webhook, the `X-Hub-Signature` header is validated for GitHub. For GitLab, the `X-Gitlab-Token` header is validated.
+- For all other requests coming to the regular API, the `X-API-Secret` header is needed to validate the request.
+
+### Swagger UI
+
+The API server has a built-in Swagger UI. You can access it by navigating to `http://localhost:4000/docs` in your browser.
 
 ## GitHub Configuration
 

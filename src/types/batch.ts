@@ -5,8 +5,20 @@ import { Repository } from "./repository.js";
 import crypto from "node:crypto";
 
 /**
- * @type Batch
- * @description A batch of repositories
+ * @swagger
+ *  components:
+ *      schemas:
+ *          Batch:
+ *              type: object
+ *              properties:
+ *                  id:
+ *                      type: string
+ *                      description: The ID of the batch, based on a hash of the repositories list
+ *                      example: "123456"
+ *                  repositories:
+ *                      type: array
+ *                      items:
+ *                          $ref: '#/components/schemas/Repository'
  */
 export type Batch = {
     /**
