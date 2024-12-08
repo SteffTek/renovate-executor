@@ -56,7 +56,7 @@ const handler = () => {
                 topics: process.env.RE_TOPICS?.split(",").filter((x) => x.length > 0) || undefined,
             });
         case "gitlab":
-            if(!process.env.RE_GITLAB_TOKEN) {
+            if (!process.env.RE_GITLAB_TOKEN) {
                 throw new Error("GitLab Token not set");
             }
             return new GitLabHandler({
