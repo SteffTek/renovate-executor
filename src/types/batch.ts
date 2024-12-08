@@ -28,6 +28,6 @@ export type Batch = {
  */
 export function createBatchId(repositories: Array<Repository>): string {
     const hash = crypto.createHash("sha1");
-    hash.update(repositories.map((repo) => repo.path).join(","));
+    hash.update(repositories.map((repo) => repo.id).join(","));
     return hash.digest("hex");
 }

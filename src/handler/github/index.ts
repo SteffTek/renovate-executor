@@ -60,6 +60,7 @@ export class GitHubHandler extends Handler {
                 .then((response) => {
                     response.data.forEach((repo) => {
                         repositories.push({
+                            id: repo.id.toString(),
                             path: repo.full_name,
                             url: repo.html_url,
                             branch: repo.default_branch,
@@ -167,6 +168,7 @@ export class GitHubHandler extends Handler {
             })
             .then((response) => {
                 return {
+                    id: response.data.id.toString(),
                     path: response.data.full_name,
                     url: response.data.html_url,
                     branch: response.data.default_branch,
