@@ -4,6 +4,12 @@
  */
 export type Repository = {
     /**
+     * Id
+     * @description The id of the repository. This will be used to identify the repository.
+     * @example "123456"
+     */
+    id: string;
+    /**
      * Project Path
      * @description The path to the project in GitHub or GitLab. This will be used to filter the repositories.
      * @example "stefftek/renovate-executor"
