@@ -2,7 +2,7 @@
  * Imports
  */
 import { JobWorker } from "./worker.js";
-import { Batch, createBatchId } from "../types/batch.js";
+import { Batch, BatchType, createBatchId } from "../types/batch.js";
 import { Handler } from "../types/handler.js";
 
 /**
@@ -42,6 +42,7 @@ export const cron = async ({
         batches.push({
             id: createBatchId(repos),
             repositories: repos,
+            type: BatchType.Cron
         });
     }
     console.log(`Created ${batches.length} batches with ${batch_size} repositories each`);

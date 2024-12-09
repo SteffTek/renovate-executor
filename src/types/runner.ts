@@ -46,10 +46,10 @@ export abstract class Runner {
     /**
      * checkJob
      * @description Check if the job is running
-     * @param {string} id The job id
+     * @param {Batch} batch The batch to check
      * @returns {Promise<boolean>} True if the job is running, false otherwise
      */
-    public abstract checkJob(id: string): Promise<boolean>;
+    public abstract checkJob(batch: Batch): Promise<boolean>;
 
     /**
      * runJob

@@ -2,7 +2,7 @@
  * Imports
  */
 import { JobWorker } from "./worker.js";
-import { Batch, createBatchId } from "../types/batch.js";
+import { Batch, BatchType, createBatchId } from "../types/batch.js";
 import { Handler } from "../types/handler.js";
 import { Payload } from "../types/payload.js";
 import { IncomingHttpHeaders } from "http";
@@ -46,6 +46,7 @@ export const hook = async ({
     const batch: Batch = {
         id: createBatchId([repository]),
         repositories: [repository],
+        type: BatchType.Hook
     };
     worker.addHookJob(batch);
 };
