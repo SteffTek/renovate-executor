@@ -41,7 +41,7 @@ export class KubernetesRunner extends Runner {
         this.kubeApi = this.kubeconfig.makeApiClient(k8s.CoreV1Api);
     }
 
-    public async checkJob(id: string): Promise<boolean> {
+    public async checkJob(batch: Batch): Promise<boolean> {
         // Check if the job is running
         const res = await this.kubeApi
             .listNamespacedPod(
@@ -50,7 +50,7 @@ export class KubernetesRunner extends Runner {
                 undefined,
                 undefined,
                 undefined,
-                `batchId=${id}`,
+                `batchId=${batch.id}`,
                 1,
             )
             .catch(() => {
@@ -75,10 +75,14 @@ export class KubernetesRunner extends Runner {
             apiVersion: "v1",
             kind: "Pod",
             metadata: {
-                name: `renovate-${batch.id}`,
+                name: `renovate-${batch.id}-${batch.type}`,
                 labels: {
                     batchId: batch.id,
                 },
+                annotations: {
+                    batchType: batch.type,
+                    repositories: JSON.stringify(batch.repositories.map((repo) => repo.path)),
+                }
             },
             spec: {
                 imagePullSecrets: [

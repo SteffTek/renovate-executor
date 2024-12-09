@@ -8,6 +8,21 @@ import crypto from "node:crypto";
  * @swagger
  *  components:
  *      schemas:
+ *          BatchType:
+ *              type: string
+ *              enum:
+ *                  - cron
+ *                  - hook
+ */
+export enum BatchType {
+    Cron = "cron",
+    Hook = "hook",
+}
+
+/**
+ * @swagger
+ *  components:
+ *      schemas:
  *          Batch:
  *              type: object
  *              properties:
@@ -19,6 +34,12 @@ import crypto from "node:crypto";
  *                      type: array
  *                      items:
  *                          $ref: '#/components/schemas/Repository'
+ *                      description: The repositories in the batch
+ *                      example: []
+ *                  type:
+ *                      $ref: '#/components/schemas/BatchType'
+ *                      description: The type of the batch
+ *                      example: "cron"
  */
 export type Batch = {
     /**
@@ -31,6 +52,11 @@ export type Batch = {
      * @description The repositories in the batch
      */
     repositories: Array<Repository>;
+    /**
+     * Batch Type
+     * @description The type of the batch
+     */
+    type: BatchType;
 };
 
 /**

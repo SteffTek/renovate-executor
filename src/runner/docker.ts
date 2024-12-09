@@ -66,9 +66,9 @@ export class DockerRunner extends Runner {
         }
     }
 
-    public async checkJob(id: string): Promise<boolean> {
+    public async checkJob(batch: Batch): Promise<boolean> {
         // Use Docker API to check if a container with the name exists
-        const container = this.docker.getContainer(id);
+        const container = this.docker.getContainer(batch.id);
         return new Promise((resolve) => {
             container.inspect((err) => {
                 if (err) {
@@ -110,12 +110,17 @@ export class DockerRunner extends Runner {
 
         const container = await this.docker.createContainer({
             Image: this.getRenovateImage(),
-            name: batch.id,
+            name: `${batch.id}-${batch.type}`,
             HostConfig: {
                 AutoRemove: true,
                 Mounts: mount ? [mount] : undefined,
             },
             Env: Object.keys(envs).map((env) => `${env}=${envs[env]}`),
+            Labels: {
+                batchId: batch.id,
+                batchType: batch.type,
+                repositories: JSON.stringify(batch.repositories.map((repo) => repo.path)),
+            },
         });
         await container.start();
     }
