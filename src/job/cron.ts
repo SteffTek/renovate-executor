@@ -42,7 +42,7 @@ export const cron = async ({
         batches.push({
             id: createBatchId(repos),
             repositories: repos,
-            type: BatchType.Cron
+            type: BatchType.Cron,
         });
     }
     console.log(`Created ${batches.length} batches with ${batch_size} repositories each`);

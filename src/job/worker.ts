@@ -200,7 +200,7 @@ export class JobWorker {
     }
 
     private async checkJob(batch: Batch): Promise<boolean> {
-        return await this.runner.checkJob(batch.id);
+        return await this.runner.checkJob(batch);
     }
 
     private async removeJob(cache: NodeCache, batch: Batch) {

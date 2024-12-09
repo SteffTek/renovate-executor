@@ -82,7 +82,7 @@ export class KubernetesRunner extends Runner {
                 annotations: {
                     batchType: batch.type,
                     repositories: JSON.stringify(batch.repositories.map((repo) => repo.path)),
-                }
+                },
             },
             spec: {
                 imagePullSecrets: [

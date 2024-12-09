@@ -46,7 +46,7 @@ export const hook = async ({
     const batch: Batch = {
         id: createBatchId([repository]),
         repositories: [repository],
-        type: BatchType.Hook
+        type: BatchType.Hook,
     };
     worker.addHookJob(batch);
 };
