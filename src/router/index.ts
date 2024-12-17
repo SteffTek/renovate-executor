@@ -138,6 +138,7 @@ export const createRouter = (handler: Handler, worker: JobWorker): Router => {
         // Check if body is json => if not return 400
         if (req.headers["content-type"] !== "application/json") {
             res.status(400).json({ error: "Content-Type must be application/json" });
+            console.error("Content-Type must be application/json");
             return;
         }
         // Cast Body to Payload
@@ -145,6 +146,7 @@ export const createRouter = (handler: Handler, worker: JobWorker): Router => {
         // Check if we have empty payload
         if (payload == null) {
             res.status(400).json({ error: "Payload is empty" });
+            console.error("Payload is empty");
             return;
         }
         try {
@@ -158,6 +160,7 @@ export const createRouter = (handler: Handler, worker: JobWorker): Router => {
             res.status(200).json({ message: "Job added to the queue" });
         } catch (error) {
             res.status(500).json({ error: (error as Error).message });
+            console.error((error as Error).message);
         }
     });
 

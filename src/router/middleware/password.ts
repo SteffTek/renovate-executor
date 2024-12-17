@@ -28,6 +28,7 @@ export const checkApiSecret = (req: Request, res: Response, next: NextFunction) 
 
     if (req.headers["x-api-secret"] !== API_SECRET) {
         res.status(401).json({ error: "Unauthorized" });
+        console.error("Unauthorized");
         return;
     }
     next();
@@ -69,6 +70,7 @@ export const checkWebhookSecret = async (req: Request, res: Response, next: Next
     // If neither
     if (!valid) {
         res.status(401).json({ error: "Unauthorized" });
+        console.error("Unauthorized");
         return;
     }
     next();

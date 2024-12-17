@@ -131,7 +131,7 @@ export class GitHubHandler extends Handler {
         const event = headers["x-github-event"] as string;
         // Check if Event is allowed
         if (!this.checkEvent(event ?? "not_found")) {
-            throw new Error("Event not allowed");
+            throw new Error(`Event not allowed: ${event}. Allowed events: ${this.getAllowedEvents().join(", ")}`);
         }
 
         // Get Config

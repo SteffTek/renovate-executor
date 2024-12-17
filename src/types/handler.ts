@@ -97,6 +97,16 @@ export abstract class Handler {
     setAllowedEvents(events: Array<string>): void {
         this.allowedEvents = events;
     }
+
+    /**
+     * getAllowedEvents
+     * @description Get the allowed events for the handler
+     * @returns {Array<string>} The allowed events
+     */
+    getAllowedEvents(): Array<string> {
+        return this.allowedEvents;
+    }
+
     /**
      * fetch
      * @description Fetch the repositories from the source

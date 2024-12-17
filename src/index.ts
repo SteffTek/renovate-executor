@@ -9,7 +9,7 @@
  */
 import cron from "node-cron";
 import { config as loadEnv } from "dotenv";
-import { useLogger } from "./utils/logger.js";
+import { useLogger, routeLogger } from "./utils/logger.js";
 import { GitHubHandler } from "./handler/github/index.js";
 import { cron as handleCron } from "./job/cron.js";
 import { JobWorker } from "./job/worker.js";
@@ -155,14 +155,23 @@ app.use(
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
+
 /**
  * Create Router
  */
 import { swagger, swaggerDocs } from "./utils/swagger.js";
 import { createRouter } from "./router/index.js";
 import { GitLabHandler } from "./handler/gitlab/index.js";
+app.use(routeLogger);
 app.use("/docs", swagger, swaggerDocs);
 app.use(createRouter(handler(), worker));
+
+/**
+ * 404 Handler
+ */
+app.use((req, res) => {
+    res.status(404).json({ error: "Not Found" });
+});
 
 /**
  * Start the Express Server
