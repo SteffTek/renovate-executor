@@ -14,4 +14,4 @@ services:
       RE_GITHUB_TOKEN: ghp_xxxx
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
-      - ../../renovate.env.json:/tmp/renovate.env.json
+      - ./renovate.env.json:/tmp/renovate.env.json
