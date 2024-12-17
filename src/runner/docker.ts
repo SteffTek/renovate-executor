@@ -68,7 +68,7 @@ export class DockerRunner extends Runner {
 
     public async checkJob(batch: Batch): Promise<boolean> {
         // Use Docker API to check if a container with the name exists
-        const container = this.docker.getContainer(batch.id);
+        const container = this.docker.getContainer(`${batch.id}-${batch.type}`);
         return new Promise((resolve) => {
             container.inspect((err) => {
                 if (err) {
