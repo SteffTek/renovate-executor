@@ -140,6 +140,11 @@ RE_WEBHOOK_SECRET=renovate      # Secret for the webhook. If set, the webhook wi
 RE_API_SECRET=renovate          # Secret for the other API endpoints. If set, the API will only accept requests with this secret
 ```
 
+### Webhook
+
+The webhook is used to trigger the renovate instance to run a job. The webhook is disabled by default. You can enable it by setting the `RE_WEBHOOK_ENABLED` environment variable to `true`.
+To trigger a job, create a new Webhook in GitHub or GitLab and point it to the API server. The URL should look like this: `http://localhost:4000/hook`.
+
 ### Header Validation
 
 The API automatically validates the headers of incoming requests.
