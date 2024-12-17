@@ -1,0 +1,13 @@
+{
+    "binarySource": "install",
+    "forkProcessing": "enabled",
+    "onboarding": true,
+    "semanticCommits": "enabled",
+    "onboardingCommitMessage": "chore: add Renovate config",
+    "onboardingConfig": {
+        "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+        "extends": ["config:recommended"]
+    },
+    "autodiscover": false,
+    "printConfig": true
+}

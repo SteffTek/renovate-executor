@@ -30,3 +30,7 @@ secret.pgp
 .env.*
 *.env.*
 renovate.config.*
+
+# Include in manifest/docker
+!manifest/docker/renovate.config.json
+!manifest/docker/renovate.env.json
