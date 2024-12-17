@@ -105,7 +105,7 @@ export class GitLabHandler extends Handler {
     async check(headers: IncomingHttpHeaders, payload: GitLabPayload): Promise<Repository | null> {
         // Check if event is allowed
         if (!this.checkEvent(payload.event_type)) {
-            return null;
+            throw new Error(`Event not allowed: ${payload.event_type}. Allowed events: ${this.getAllowedEvents().join(", ")}`);
         }
 
         // Get Config

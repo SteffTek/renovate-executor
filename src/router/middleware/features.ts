@@ -18,6 +18,7 @@ const API_ENABLED = process.env.RE_API_ENABLED === "true";
 export const checkAPIEnabled = (req: Request, res: Response, next: NextFunction) => {
     if (!API_ENABLED) {
         res.status(400).json({ error: "API is disabled" });
+        console.error("API is disabled");
         return;
     }
     next();
@@ -29,6 +30,7 @@ export const checkAPIEnabled = (req: Request, res: Response, next: NextFunction)
 export const checkWebhookEnabled = async (req: Request, res: Response, next: NextFunction) => {
     if (!WEBHOOK_ENABLED) {
         res.status(400).json({ error: "Webhook is disabled" });
+        console.error("Webhook is disabled");
         return;
     }
     next();
