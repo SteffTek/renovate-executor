@@ -1,14 +1,14 @@
 services:
   renovate-executor:
     container_name: renovate-executor
-    image: ghcr.io/stefftek/renovate-executor:1.0.0
+    image: ghcr.io/stefftek/renovate-executor:1.1.2
     ports:
       - 4000:4000
     environment:
       RE_HANDLER: "github"
       RE_RUNTIME: "docker"
       RE_CRON_SCHEDULE: "*/10 * * * *"
-      RE_RENOVATE_IMAGE: renovate/renovate:39.49-full
+      RE_RENOVATE_IMAGE: renovate/renovate:39.49
       RE_RENOVATE_ENV: /tmp/renovate.env.json
       # Custom Config
       RE_GITHUB_TOKEN: ghp_xxxx
