@@ -41,7 +41,6 @@ export class GitHubHandler extends Handler {
         return event === "pull_request";
     }
 
-
     /**
      * fetchRepositories
      * @description Fetch the repositories from GitHub
@@ -136,7 +135,10 @@ export class GitHubHandler extends Handler {
      * @param {GitHubPayload} payload The payload from the request
      * @returns {Promise<{ repo: Repository | null; event: string }>} True if the repository has updates, false otherwise
      */
-    async check(headers: IncomingHttpHeaders, payload: GitHubPayload): Promise<{ repo: Repository | null; event: string }> {
+    async check(
+        headers: IncomingHttpHeaders,
+        payload: GitHubPayload,
+    ): Promise<{ repo: Repository | null; event: string }> {
         // Get event from headers (X-GitHub-Event)
         const event = headers["x-github-event"] as string;
         // Check if Event is allowed
@@ -214,7 +216,7 @@ export class GitHubHandler extends Handler {
             .list({
                 owner: owner,
                 repo: repo,
-                state: "open"
+                state: "open",
             })
             .then((response) => {
                 return response.data.map((pull) => {
@@ -289,7 +291,9 @@ export class GitHubHandler extends Handler {
             pull_number: parseInt(mergeRequest.id),
         });
 
-        if (reviews.data.some((review) => review.user?.login === reviewUser.data.login && review.state === "APPROVED")) {
+        if (
+            reviews.data.some((review) => review.user?.login === reviewUser.data.login && review.state === "APPROVED")
+        ) {
             // Fail Silent when already approved
             return;
             // throw new Error("Merge request is already approved by renovate");

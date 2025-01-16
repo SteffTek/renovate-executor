@@ -44,7 +44,7 @@ export const hook = async ({
     }
 
     // Start Auto-Merge
-    if(handler.isMergeRequest(data.event) && handler.getConfig().auto_merge) {
+    if (handler.isMergeRequest(data.event) && handler.getConfig().auto_merge) {
         await mr(data.repo, handler).catch((error) => {
             console.error(`Error while approving merge requests: ${error}`);
         });
@@ -79,6 +79,6 @@ export const mr = async (repository: Repository, handler: Handler) => {
             await handler.approveMergeRequest(mr).catch((error) => {
                 console.error(`Error while approving merge request ${mr.projectId}/${mr.id}: ${error}`);
             });
-        })
+        }),
     );
 };
