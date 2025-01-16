@@ -3,10 +3,10 @@ name: Check Build
 # Run this workflow on pushes to the main and develop branches, as well as on pull requests and manual triggers
 on:
   push:
-    branches:
-      - main
-      - develop
+    branches: [ "develop" ]
   pull_request:
+    # The branches below must be a subset of the branches above
+    branches: [ "develop" ]
   workflow_dispatch:
 
 jobs:
