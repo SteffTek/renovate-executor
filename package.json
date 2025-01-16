@@ -42,7 +42,7 @@
   },
   "dependencies": {
     "@gitbeaker/rest": "^42.0.0",
-    "@kubernetes/client-node": "^0.22.3",
+    "@kubernetes/client-node": "^1.0.0",
     "@octokit/auth-token": "^5.1.1",
     "@octokit/rest": "^21.0.2",
     "@octokit/webhooks": "^13.4.1",
