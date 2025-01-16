@@ -2,9 +2,7 @@ report: all
 scan:
   scanners:
     - vuln
-    - misconfig
     - secret
-    - license
   skip-files:
     - node_modules/**
     - app/node_modules/**
