@@ -21,10 +21,7 @@ export class Logger {
      * Log a message
      * @param message The message to log
      */
-    private static sendLog(
-        message: string,
-        level: LogLevel = LogLevel.INFO,
-    ): void {
+    private static sendLog(message: string, level: LogLevel = LogLevel.INFO): void {
         const color = (level: LogLevel) => {
             const name = level.toUpperCase().padEnd(7, " ");
             switch (level) {
@@ -40,9 +37,7 @@ export class Logger {
                     return ansiColors.gray(name);
             }
         };
-        const formatted = ansiColors.bold(
-            `[ ${color(level)} | ${new Date().toISOString()} ]`,
-        );
+        const formatted = ansiColors.bold(`[ ${color(level)} | ${new Date().toISOString()} ]`);
         process.stdout.write(`${formatted}: ${message}\n`);
     }
 
@@ -109,11 +104,7 @@ export function useLogger(): void {
 /**
  * Route Logger
  */
-export const routeLogger = (
-    req: express.Request,
-    res: express.Response,
-    next: express.NextFunction,
-) => {
+export const routeLogger = (req: express.Request, res: express.Response, next: express.NextFunction) => {
     // Get method
     const method = req.method;
     // Get endpoint

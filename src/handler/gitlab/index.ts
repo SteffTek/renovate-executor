@@ -102,10 +102,15 @@ export class GitLabHandler extends Handler {
      * @param {GitLabPayload} payload The payload from the request
      * @returns {Promise<{ repo: Repository | null; event: string }>} True if the repository has updates, false otherwise
      */
-    async check(headers: IncomingHttpHeaders, payload: GitLabPayload): Promise<{ repo: Repository | null; event: string }> {
+    async check(
+        headers: IncomingHttpHeaders,
+        payload: GitLabPayload,
+    ): Promise<{ repo: Repository | null; event: string }> {
         // Check if event is allowed
         if (!this.checkEvent(payload.object_kind)) {
-            throw new Error(`Event not allowed: ${payload.object_kind}. Allowed events: ${this.getAllowedEvents().join(", ")}`);
+            throw new Error(
+                `Event not allowed: ${payload.object_kind}. Allowed events: ${this.getAllowedEvents().join(", ")}`,
+            );
         }
 
         // Log Event and Project
@@ -177,11 +182,10 @@ export class GitLabHandler extends Handler {
      */
     async getMergeRequests(repository: Repository): Promise<Array<MergeRequest>> {
         // Fetch merge requests from api
-        return await this.api.MergeRequests
-            .all({
-                projectId: parseInt(repository.id),
-                state: "opened"
-            })
+        return await this.api.MergeRequests.all({
+            projectId: parseInt(repository.id),
+            state: "opened",
+        })
             .then((response) => {
                 return response.map((mr) => {
                     return {
@@ -192,7 +196,7 @@ export class GitLabHandler extends Handler {
                         author: mr.author.id.toString(),
                         repository: repository.path,
                         url: mr.web_url,
-                        status: mr.state
+                        status: mr.state,
                     } as MergeRequest;
                 });
             })
@@ -228,29 +232,30 @@ export class GitLabHandler extends Handler {
         const authorUser = await this.api.Users.showCurrentUser();
         // const reviewUser = await approverAPI.Users.showCurrentUser(); // NOT NEEDED FOR GITLAB
 
-        if(authorUser.id !== parseInt(mergeRequest.author)) {
+        if (authorUser.id !== parseInt(mergeRequest.author)) {
             throw new Error("Renovate-User is not the author of the merge request");
         }
 
         // Get MR from API
-        const mr = await approverAPI.MergeRequests
-            .show(parseInt(mergeRequest.projectId), parseInt(mergeRequest.id))
-            .catch((error) => {
-                console.error(`Failed to fetch merge request: ${error}`);
-                return null;
-            });
+        const mr = await approverAPI.MergeRequests.show(
+            parseInt(mergeRequest.projectId),
+            parseInt(mergeRequest.id),
+        ).catch((error) => {
+            console.error(`Failed to fetch merge request: ${error}`);
+            return null;
+        });
 
-        if(!mr) {
+        if (!mr) {
             throw new Error("Failed to fetch merge request");
         }
 
         // Check if MR is open
-        if(mr.state !== "opened") {
+        if (mr.state !== "opened") {
             throw new Error("Merge Request is not open");
         }
 
         // Check if MR needs approval
-        if(mr.approvals_before_merge === null || mr.approvals_before_merge === 0) {
+        if (mr.approvals_before_merge === null || mr.approvals_before_merge === 0) {
             // Fail Silent when no approvals are needed
             return;
             // This is too annoying for the user
@@ -258,10 +263,11 @@ export class GitLabHandler extends Handler {
         }
 
         // Approve MR
-        await approverAPI.MergeRequestApprovals
-            .approve(parseInt(mergeRequest.projectId), parseInt(mergeRequest.id))
-            .catch((error) => {
-                throw new Error(`Failed to approve merge request: ${error}`);
-            });
+        await approverAPI.MergeRequestApprovals.approve(
+            parseInt(mergeRequest.projectId),
+            parseInt(mergeRequest.id),
+        ).catch((error) => {
+            throw new Error(`Failed to approve merge request: ${error}`);
+        });
     }
 }

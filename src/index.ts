@@ -81,13 +81,13 @@ const runner = () => {
         case "kubernetes":
             return new KubernetesRunner(
                 process.env.RE_RENOVATE_IMAGE ?? "renovate/renovate",
-                process.env.RE_RENOVATE_ENV ?? "./renovate.env.json"
+                process.env.RE_RENOVATE_ENV ?? "./renovate.env.json",
             );
         default:
             return new DockerRunner(
                 process.env.RE_RENOVATE_IMAGE ?? "renovate/renovate",
                 process.env.RE_RENOVATE_ENV ?? "./renovate.env.json",
-                process.env.RE_DISABLE_AUTO_CLEANUP === "true"
+                process.env.RE_DISABLE_AUTO_CLEANUP === "true",
             );
     }
 };
@@ -160,7 +160,6 @@ app.use(
 );
 app.use(express.json({ limit: "50mb" }));
 app.use(express.urlencoded({ extended: true, limit: "50mb" }));
-
 
 /**
  * Create Router
