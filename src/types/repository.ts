@@ -60,3 +60,56 @@ export type Repository = {
      */
     topics?: Array<string>;
 };
+
+/**
+ * Merge Requests
+ */
+export type MergeRequest = {
+    /**
+     * Id
+     * @description The id of the merge request. This will be used to identify the merge request.
+     * @example "123456"
+     */
+    id: string;
+    /**
+     * ProjectId
+     * @description The id of the project. This will be used to identify the project.
+     * @example "123456"
+     */
+    projectId: string;
+    /**
+     * Title
+     * @description The title of the merge request.
+     * @example "Update dependencies"
+     */
+    title: string;
+    /**
+     * Description
+     * @description The description of the merge request.
+     * @example "This merge request updates the dependencies."
+     */
+    description: string;
+    /**
+     * Author
+     * @description The author of the merge request.
+     * @example "stefftek"
+     */
+    author: string;
+    /**
+     * Repository
+     * @description The repository of the merge request.
+     * @example "stefftek/renovate-executor"
+     */
+    repository: string;
+    /**
+     * URL
+     * @description The URL to the merge request.
+     */
+    url: string;
+    /**
+     * Status
+     * @description The status of the merge request.
+     * @example "open"
+     */
+    status: string;
+};

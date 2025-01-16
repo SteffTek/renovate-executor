@@ -36,6 +36,12 @@ export class JobWorker {
      */
     private hookQueue: { [key: string]: Batch } = {};
 
+    /**
+     * Cache for Rate Limiting
+     * @type NodeCache
+     */
+    private rateLimited: NodeCache = new NodeCache({ stdTTL: 300 });
+
     private runner: Runner;
     private maxBatchJobs: number = 10;
     private maxHookJobs: number = 10;
@@ -47,10 +53,12 @@ export class JobWorker {
         runner,
         maxBatchJobs = 10,
         maxHookJobs = 10,
+        rateLimit = 300,
     }: {
         runner: Runner;
         maxBatchJobs?: number;
         maxHookJobs?: number;
+        rateLimit?: number;
     }) {
         this.runner = runner;
         this.maxBatchJobs = maxBatchJobs;
@@ -59,6 +67,7 @@ export class JobWorker {
         // Initialize the cache
         this.batchCache = new NodeCache();
         this.hookCache = new NodeCache();
+        this.rateLimited = new NodeCache({ stdTTL: rateLimit });
     }
 
     /**
@@ -71,8 +80,18 @@ export class JobWorker {
             console.warn(`Batch Job ${batch.id} already in the Queue`);
             return;
         }
+
+        // Check if rate limited
+        if (this.rateLimited.get(batch.id)) {
+            console.warn(`Batch Job ${batch.id} is rate limited`);
+            return;
+        }
+
         this.batchQueue[batch.id] = batch;
         console.log(`Added Batch Job ${batch.id} to the Queue`);
+
+        // Add to Rate Limiting Cache
+        this.rateLimited.set(batch.id, true);
     }
 
     /**
@@ -85,8 +104,17 @@ export class JobWorker {
             console.warn(`Hook Job ${batch.id} already in the Queue`);
             return;
         }
+        // Check if rate limited
+        if (this.rateLimited.get(batch.id)) {
+            console.warn(`Hook Job ${batch.id} is rate limited`);
+            return;
+        }
+
         this.hookQueue[batch.id] = batch;
         console.log(`Added Hook Job ${batch.id} to the Queue`);
+
+        // Add to Rate Limiting Cache
+        this.rateLimited.set(batch.id, true);
     }
 
     /**

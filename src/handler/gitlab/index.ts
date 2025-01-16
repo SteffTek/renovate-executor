@@ -1,7 +1,7 @@
 /**
  * Imports
  */
-import { Repository } from "../../types/repository.js";
+import { MergeRequest, Repository } from "../../types/repository.js";
 import { Handler, HandlerConfig } from "../../types/handler.js";
 import { GitLabPayload } from "./payload.js";
 import { IncomingHttpHeaders } from "http";
@@ -100,13 +100,16 @@ export class GitLabHandler extends Handler {
      * @description Checks if a repository is able to be updated
      * @param {IncomingHttpHeaders} headers The headers from the request
      * @param {GitLabPayload} payload The payload from the request
-     * @returns {Promise<Repository | null>} True if the repository has updates, false otherwise
+     * @returns {Promise<{ repo: Repository | null; event: string }>} True if the repository has updates, false otherwise
      */
-    async check(headers: IncomingHttpHeaders, payload: GitLabPayload): Promise<Repository | null> {
+    async check(headers: IncomingHttpHeaders, payload: GitLabPayload): Promise<{ repo: Repository | null; event: string }> {
         // Check if event is allowed
-        if (!this.checkEvent(payload.event_type)) {
-            throw new Error(`Event not allowed: ${payload.event_type}. Allowed events: ${this.getAllowedEvents().join(", ")}`);
+        if (!this.checkEvent(payload.object_kind)) {
+            throw new Error(`Event not allowed: ${payload.object_kind}. Allowed events: ${this.getAllowedEvents().join(", ")}`);
         }
+
+        // Log Event and Project
+        console.log(`Got event: ${payload.object_kind} for project: ${payload.project.path_with_namespace}`);
 
         // Get Config
         const orgs = this.getConfig().orgs ?? [];
@@ -120,14 +123,14 @@ export class GitLabHandler extends Handler {
         // Check if repository is org or user
         if (orgs.length > 0 || users.length > 0) {
             if (!orgs.includes(owner.toLocaleLowerCase()) && !users.includes(owner.toLocaleLowerCase())) {
-                return null;
+                return { repo: null, event: payload.object_kind };
             }
         }
 
         // Check if repository is in predefined list
         if (predefined.length > 0) {
             if (!predefined.includes(payload.project.path_with_namespace)) {
-                return null;
+                return { repo: null, event: payload.object_kind };
             }
         }
 
@@ -136,7 +139,7 @@ export class GitLabHandler extends Handler {
             return null;
         });
         if (!project) {
-            return null;
+            return { repo: null, event: payload.object_kind };
         }
 
         const repository: Repository = {
@@ -150,10 +153,115 @@ export class GitLabHandler extends Handler {
         // Check if repository has all topics
         if (topics.length > 0) {
             if (!repository.topics || !topics.every((topic) => repository.topics?.includes(topic))) {
-                return null;
+                return { repo: null, event: payload.object_kind };
             }
         }
 
-        return repository;
+        return { repo: repository, event: payload.object_kind };
+    }
+
+    /**
+     * is merge request
+     * @description Check if the payload is a merge request
+     * @param {string} event The event type
+     */
+    isMergeRequest(event: string): boolean {
+        return event === "merge_request";
+    }
+
+    /**
+     * get renovate merge requests
+     * @description Get the merge requests for the repository
+     * @param {Repository} repository The repository to get the merge requests for
+     * @returns {Promise<Array<MergeRequest>>} The merge requests for the repository
+     */
+    async getMergeRequests(repository: Repository): Promise<Array<MergeRequest>> {
+        // Fetch merge requests from api
+        return await this.api.MergeRequests
+            .all({
+                projectId: parseInt(repository.id),
+                state: "opened"
+            })
+            .then((response) => {
+                return response.map((mr) => {
+                    return {
+                        id: mr.iid.toString(),
+                        projectId: mr.project_id.toString(),
+                        title: mr.title,
+                        description: mr.description,
+                        author: mr.author.id.toString(),
+                        repository: repository.path,
+                        url: mr.web_url,
+                        status: mr.state
+                    } as MergeRequest;
+                });
+            })
+            .catch((error) => {
+                throw new Error(`Failed to fetch merge requests: ${error}`);
+            });
+    }
+
+    /**
+     * approve merge request
+     * @description Approve the merge request
+     * @param {MergeRequest} mergeRequest The merge request to approve
+     * @returns {Promise<void>}
+     */
+    async approveMergeRequest(mergeRequest: MergeRequest): Promise<void> {
+        // Check if description contains "Automerge: Enabled"
+        if (!mergeRequest.description.includes("**Automerge**: Enabled")) {
+            throw new Error("Automerge is not enabled");
+        }
+
+        // Check if approver token is set
+        if (!this.getConfig().approve_token) {
+            throw new Error("Approver token not set");
+        }
+
+        // Create new GitLab API instance for approving merge requests
+        const approverAPI = new Gitlab({
+            token: this.getConfig().approve_token ?? "",
+            host: this.getConfig().endpoint ?? "https://gitlab.com",
+        });
+
+        // Get current user to check if user is author of mr
+        const authorUser = await this.api.Users.showCurrentUser();
+        // const reviewUser = await approverAPI.Users.showCurrentUser(); // NOT NEEDED FOR GITLAB
+
+        if(authorUser.id !== parseInt(mergeRequest.author)) {
+            throw new Error("Renovate-User is not the author of the merge request");
+        }
+
+        // Get MR from API
+        const mr = await approverAPI.MergeRequests
+            .show(parseInt(mergeRequest.projectId), parseInt(mergeRequest.id))
+            .catch((error) => {
+                console.error(`Failed to fetch merge request: ${error}`);
+                return null;
+            });
+
+        if(!mr) {
+            throw new Error("Failed to fetch merge request");
+        }
+
+        // Check if MR is open
+        if(mr.state !== "opened") {
+            throw new Error("Merge Request is not open");
+        }
+
+        // Check if MR needs approval
+        if(mr.approvals_before_merge === null || mr.approvals_before_merge === 0) {
+            // Fail Silent when no approvals are needed
+            return;
+            // This is too annoying for the user
+            // throw new Error("Merge request does not need approval");
+        }
+
+        // Approve MR
+        await approverAPI.MergeRequestApprovals
+            .approve(parseInt(mergeRequest.projectId), parseInt(mergeRequest.id))
+            .catch((error) => {
+                throw new Error(`Failed to approve merge request: ${error}`);
+            });
     }
 }
