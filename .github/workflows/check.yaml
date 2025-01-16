@@ -13,6 +13,8 @@ jobs:
   build:
     name: Build App
     runs-on: ubuntu-latest
+    permissions:
+      security-events: write # to be able to publish security events
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -43,3 +45,4 @@ jobs:
         if: always()
         with:
           sarif_file: 'trivy-results.sarif'
+          token: ${{ secrets.GITHUB_TOKEN }}
