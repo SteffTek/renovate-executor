@@ -1,8 +1,9 @@
 report: all
-ignore: node_modules
 scan:
   scanners:
     - vuln
     - misconfig
     - secret
     - license
+  skip-files:
+    - node_modules/**
