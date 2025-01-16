@@ -14,6 +14,7 @@ module.exports = {
                     "{{major}}-{{#if prerelease.[0]}}{{prerelease.[0]}}{{else}}latest{{/if}}",
                     "{{major}}.{{minor}}-{{#if prerelease.[0]}}{{prerelease.[0]}}{{else}}latest{{/if}}",
                     "{{version}}",
+                    "{{sha}}",
                 ],
                 dockerImage: "renovate-executor",
                 dockerFile: "Dockerfile",
