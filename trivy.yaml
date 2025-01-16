@@ -1,0 +1,8 @@
+report: all
+ignore: node_modules
+scan:
+  scanners:
+    - vuln
+    - misconfig
+    - secret
+    - license

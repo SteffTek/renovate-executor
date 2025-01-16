@@ -19,6 +19,9 @@ COPY --from=build /app/package.json ./
 RUN npm install --only=production
 COPY --from=build /app/dist ./dist
 
+# Set User to non-root
+USER node
+
 # Configuration
 EXPOSE 4000
 CMD ["node", "dist/index.js"]
