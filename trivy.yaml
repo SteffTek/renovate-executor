@@ -7,3 +7,5 @@ scan:
     - license
   skip-files:
     - node_modules/**
+    - app/node_modules/**
+    - /root/.npm/_cacache/**
