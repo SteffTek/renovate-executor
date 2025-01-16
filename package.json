@@ -28,7 +28,7 @@
     "@typescript-eslint/eslint-plugin": "^8.17.0",
     "@typescript-eslint/parser": "^8.17.0",
     "eslint": "^9.16.0",
-    "eslint-config-prettier": "^9.1.0",
+    "eslint-config-prettier": "^10.0.0",
     "eslint-config-typescript": "^3.0.0",
     "globals": "^15.13.0",
     "prettier": "^3.4.2",
@@ -41,8 +41,8 @@
     "node": ">=20.6.0"
   },
   "dependencies": {
-    "@gitbeaker/rest": "^41.0.0",
-    "@kubernetes/client-node": "^0.22.3",
+    "@gitbeaker/rest": "^42.0.0",
+    "@kubernetes/client-node": "^1.0.0",
     "@octokit/auth-token": "^5.1.1",
     "@octokit/rest": "^21.0.2",
     "@octokit/webhooks": "^13.4.1",
