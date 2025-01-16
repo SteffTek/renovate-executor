@@ -1,5 +1,5 @@
 import { Payload } from "./payload.js";
-import { Repository } from "./repository.js";
+import { Repository, MergeRequest } from "./repository.js";
 import { IncomingHttpHeaders } from "http";
 
 /**
@@ -19,6 +19,18 @@ export type HandlerConfig = {
      * @example "my-api-token"
      */
     token: string;
+    /**
+     * Approve Token
+     * @description The token to approve the merge requests
+     * @example "my-approve-token"
+     */
+    approve_token: string | null;
+    /**
+     * Auto Merge
+     * @description If the merge requests should be auto merged
+     * @example true
+     */
+    auto_merge: boolean;
     /**
      * Organization
      * @description The organization to fetch the repositories from. If not set, all repositories will be fetched.
@@ -108,6 +120,13 @@ export abstract class Handler {
     }
 
     /**
+     * is merge request
+     * @description Check if the payload is a merge request
+     * @param {string} event The event type
+     */
+    abstract isMergeRequest(event: string): boolean;
+
+    /**
      * fetch
      * @description Fetch the repositories from the source
      * @returns {Promise<Array<Repository>>} The repositories that should be checked for updates
@@ -120,7 +139,23 @@ export abstract class Handler {
      * @description Checks if a repository is able to be updated
      * @param {IncomingHttpHeaders} header The headers from the request
      * @param {Payload} payload The payload from the request
-     * @returns {Promise<Repository | null>} True if the repository has updates, false otherwise
+     * @returns {Promise<{ repo: Repository | null; event: string }>} True if the repository has updates, false otherwise
      */
-    abstract check(header: IncomingHttpHeaders, payload: Payload): Promise<Repository | null>;
+    abstract check(header: IncomingHttpHeaders, payload: Payload): Promise<{ repo: Repository | null; event: string }>;
+
+    /**
+     * get renovate merge requests
+     * @description Get the merge requests for the repository
+     * @param {Repository} repository The repository to get the merge requests for
+     * @returns {Promise<Array<MergeRequest>>} The merge requests for the repository
+     */
+    abstract getMergeRequests(repository: Repository): Promise<Array<MergeRequest>>;
+
+    /**
+     * approve merge request
+     * @description Approve the merge request
+     * @param {MergeRequest} mergeRequest The merge request to approve
+     * @returns {Promise<void>}
+     */
+    abstract approveMergeRequest(mergeRequest: MergeRequest): Promise<void>;
 }

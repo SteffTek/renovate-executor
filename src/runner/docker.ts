@@ -19,13 +19,15 @@ export class DockerRunner extends Runner {
      * @see https://www.npmjs.com/package/dockerode
      */
     private docker: Docker;
+    private disableAutoCleanup: boolean;
 
     /**
      * Constructor
      */
-    constructor(renovateImage: string, renovateEnvironment: string) {
+    constructor(renovateImage: string, renovateEnvironment: string, disableAutoCleanup: boolean = false) {
         super(renovateImage, renovateEnvironment);
         this.docker = new Docker();
+        this.disableAutoCleanup = disableAutoCleanup;
     }
 
     /**
@@ -112,7 +114,7 @@ export class DockerRunner extends Runner {
             Image: this.getRenovateImage(),
             name: `${batch.id}-${batch.type}`,
             HostConfig: {
-                AutoRemove: true,
+                AutoRemove: !this.disableAutoCleanup,
                 Mounts: mount ? [mount] : undefined,
             },
             Env: Object.keys(envs).map((env) => `${env}=${envs[env]}`),

@@ -1,7 +1,7 @@
 /**
  * Imports
  */
-import { Repository } from "../../types/repository.js";
+import { Repository, MergeRequest } from "../../types/repository.js";
 import { Handler, HandlerConfig } from "../../types/handler.js";
 import { Octokit } from "@octokit/rest";
 import { GitHubPayload } from "./payload.js";
@@ -31,6 +31,16 @@ export class GitHubHandler extends Handler {
         // Set allowed events
         this.setAllowedEvents(["push", "pull_request", "issues"]);
     }
+
+    /**
+     * is merge request
+     * @description Check if the payload is a merge request
+     * @param {string} event The event type
+     */
+    isMergeRequest(event: string): boolean {
+        return event === "pull_request";
+    }
+
 
     /**
      * fetchRepositories
@@ -124,15 +134,18 @@ export class GitHubHandler extends Handler {
      * @description Checks if a repository is able to be updated
      * @param {IncomingHttpHeaders} headers The headers from the request
      * @param {GitHubPayload} payload The payload from the request
-     * @returns {Promise<Repository | null>} True if the repository has updates, false otherwise
+     * @returns {Promise<{ repo: Repository | null; event: string }>} True if the repository has updates, false otherwise
      */
-    async check(headers: IncomingHttpHeaders, payload: GitHubPayload): Promise<Repository | null> {
+    async check(headers: IncomingHttpHeaders, payload: GitHubPayload): Promise<{ repo: Repository | null; event: string }> {
         // Get event from headers (X-GitHub-Event)
         const event = headers["x-github-event"] as string;
         // Check if Event is allowed
         if (!this.checkEvent(event ?? "not_found")) {
             throw new Error(`Event not allowed: ${event}. Allowed events: ${this.getAllowedEvents().join(", ")}`);
         }
+
+        // Log Event and Project
+        console.log(`Got event: ${event} for project: ${payload.repository.full_name}`);
 
         // Get Config
         const organizations = this.getConfig().orgs;
@@ -145,19 +158,19 @@ export class GitHubHandler extends Handler {
 
         // Check if the repository is in the organization OR user
         if (organizations && !organizations.includes(owner) && users && !users.includes(owner)) {
-            return null;
+            return { repo: null, event: event };
         }
 
         // Check if the repository has all topics
         if (topics && topics.length > 0) {
             if (!payload.repository.topics || !topics.every((topic) => payload.repository.topics?.includes(topic))) {
-                return null;
+                return { repo: null, event: event };
             }
         }
 
         // Check if the repository is in the predefined list
         if (predefined.length > 0 && !predefined.includes(payload.repository.full_name)) {
-            return null;
+            return { repo: null, event: event };
         }
 
         // Fetch the repository
@@ -184,6 +197,115 @@ export class GitHubHandler extends Handler {
             repository.branch = payload.repository.default_branch;
         }
 
-        return repository;
+        return { repo: repository, event: event };
+    }
+
+    /**
+     * get renovate merge requests
+     * @description Get the merge requests for the repository
+     * @param {Repository} repository The repository to get the merge requests for
+     * @returns {Promise<Array<MergeRequest>>} The merge requests for the repository
+     */
+    async getMergeRequests(repository: Repository): Promise<Array<MergeRequest>> {
+        const [owner, repo] = repository.path.split("/");
+
+        // Fetch the merge requests
+        return await this.api.pulls
+            .list({
+                owner: owner,
+                repo: repo,
+                state: "open"
+            })
+            .then((response) => {
+                return response.data.map((pull) => {
+                    return {
+                        id: pull.number.toString(),
+                        projectId: repository.id,
+                        title: pull.title,
+                        description: pull.body,
+                        author: pull.user?.login ?? "",
+                        repository: repository.path,
+                        url: pull.html_url,
+                        status: pull.state,
+                    } as MergeRequest;
+                });
+            })
+            .catch((error) => {
+                throw new Error(`Could not fetch merge requests: ${error.message}`);
+            });
+    }
+
+    /**
+     * approve merge request
+     * @description Approve the merge request
+     * @param {MergeRequest} mergeRequest The merge request to approve
+     * @returns {Promise<void>}
+     */
+    async approveMergeRequest(mergeRequest: MergeRequest): Promise<void> {
+        // Check if description contains "Automerge: Enabled"
+        if (!mergeRequest.description.includes("**Automerge**: Enabled")) {
+            throw new Error("Automerge is not enabled");
+        }
+
+        // Create new GitHub API instance for approving the merge request
+        const approverAPI = new Octokit({
+            auth: this.getConfig().approve_token,
+            baseUrl: this.getConfig().endpoint ?? "https://api.github.com",
+        });
+
+        // Get the repository information
+        const [owner, repo] = mergeRequest.repository.split("/");
+
+        // Get our api user to check if the user is the author
+        const authorUser = await this.api.users.getAuthenticated();
+        const reviewUser = await approverAPI.users.getAuthenticated();
+
+        // Check if the user is the author
+        if (authorUser.data.login !== mergeRequest.author) {
+            throw new Error("Renovate-User is not the author of the merge request");
+        }
+
+        // Get MR
+        const pull = await approverAPI.pulls.get({
+            owner: owner,
+            repo: repo,
+            pull_number: parseInt(mergeRequest.id),
+        });
+
+        // Check if MR is open
+        if (pull.data.state !== "open") {
+            throw new Error("Merge request is not open");
+        }
+
+        // Check if MR needs approval
+        if (pull.data.mergeable !== true) {
+            throw new Error("Merge request does not need approval");
+        }
+
+        // Check if already approved
+        const reviews = await approverAPI.pulls.listReviews({
+            owner: owner,
+            repo: repo,
+            pull_number: parseInt(mergeRequest.id),
+        });
+
+        if (reviews.data.some((review) => review.user?.login === reviewUser.data.login && review.state === "APPROVED")) {
+            // Fail Silent when already approved
+            return;
+            // throw new Error("Merge request is already approved by renovate");
+        }
+
+        // Approve MR
+        await approverAPI.pulls
+            .createReview({
+                owner: owner,
+                repo: repo,
+                pull_number: parseInt(mergeRequest.id),
+                event: "APPROVE",
+                body: "Automerge: Approved",
+            })
+            .catch((error) => {
+                throw new Error(`Could not approve merge request: ${error.message}`);
+            });
     }
 }

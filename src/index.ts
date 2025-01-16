@@ -44,6 +44,8 @@ const handler = () => {
             return new GitHubHandler({
                 endpoint: process.env.RE_GITHUB_ENDPOINT || "https://api.github.com",
                 token: process.env.RE_GITHUB_TOKEN,
+                approve_token: process.env.RE_GITHUB_APPROVE_TOKEN ?? null,
+                auto_merge: process.env.RE_GITHUB_APPROVE_TOKEN ? true : false,
                 orgs:
                     process.env.RE_GITHUB_ORGS?.toLocaleLowerCase()
                         .split(",")
@@ -62,6 +64,8 @@ const handler = () => {
             return new GitLabHandler({
                 endpoint: process.env.RE_GITLAB_ENDPOINT || "https://gitlab.com",
                 token: process.env.RE_GITLAB_TOKEN,
+                approve_token: process.env.RE_GITLAB_APPROVE_TOKEN ?? null,
+                auto_merge: process.env.RE_GITLAB_APPROVE_TOKEN ? true : false,
                 orgs: process.env.RE_GITLAB_GROUPS?.split(",").filter((x) => x.length > 0) || undefined,
                 users: process.env.RE_GITLAB_USERS?.split(",").filter((x) => x.length > 0) || undefined,
                 repositories: process.env.RE_REPOSITORIES?.split(",").filter((x) => x.length > 0) || [],
@@ -77,12 +81,13 @@ const runner = () => {
         case "kubernetes":
             return new KubernetesRunner(
                 process.env.RE_RENOVATE_IMAGE ?? "renovate/renovate",
-                process.env.RE_RENOVATE_ENV ?? "./renovate.env.json",
+                process.env.RE_RENOVATE_ENV ?? "./renovate.env.json"
             );
         default:
             return new DockerRunner(
                 process.env.RE_RENOVATE_IMAGE ?? "renovate/renovate",
                 process.env.RE_RENOVATE_ENV ?? "./renovate.env.json",
+                process.env.RE_DISABLE_AUTO_CLEANUP === "true"
             );
     }
 };
@@ -92,6 +97,7 @@ const worker = new JobWorker({
     runner: runner(),
     maxBatchJobs: parseInt(process.env.RE_MAX_PARALLEL_CRON_JOBS || "10"),
     maxHookJobs: parseInt(process.env.RE_MAX_PARALLEL_HOOK_JOBS || "10"),
+    rateLimit: parseInt(process.env.RE_JOB_RATE_LIMIT || "300"),
 });
 
 /**
@@ -152,8 +158,8 @@ app.use(
         methods: ["POST"],
     }),
 );
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
+app.use(express.json({ limit: "50mb" }));
+app.use(express.urlencoded({ extended: true, limit: "50mb" }));
 
 
 /**

@@ -1,7 +1,7 @@
 import { Payload } from "../../types/payload.js";
 
 export type GitLabPayload = {
-    event_type: string;
+    object_kind: string;
     project: {
         id: number;
         web_url: string;

@@ -13,6 +13,8 @@ This project was created due to the lack of a simple way to run a renovate insta
 - Internal Job Scheduler for running cron jobs
 - Job Queues with filters
 - Full renovate configuration support
+- Auto-Merge support with automatic approvals
+- Rate limiting for API requests
 
 # Configuration
 
@@ -31,6 +33,7 @@ RE_MAX_PARALLEL_CRON_JOBS=10        # Maximum number of parallel cron jobs to ru
 RE_MAX_PARALLEL_HOOK_JOBS=10        # Maximum number of parallel webhook jobs to run scaled workers, default is 10
 RE_RENOVATE_IMAGE=renovate/renovate # Docker image for the renovate instance
 RE_RENOVATE_ENV=./renovate.env.json # Renovate environment file. Contains all environment variables that will be passed to the renovate instance
+RE_JOB_RATE_LIMIT=300               # Rate limit for the internal job scheduler in seconds. Default is 300 seconds. It's recommended that this value should be higher than the median execution time of a single webhook job to avoid spamming the renovate instance
 ```
 
 ## Specific Configuration
@@ -166,6 +169,7 @@ RE_GITHUB_API=https://api.github.com    # GitHub API URL, default is https://api
 RE_GITHUB_TOKEN=ghp_xxxx                # GitHub personal access token. This is REQUIRED
 RE_GITHUB_USERS=SteffTek                # Filter for repositories. Only repositories from this user will be processed. This is a comma separated list
 RE_GITHUB_ORGS=SteffTek                 # Filter for repositories. Only repositories from this organization will be processed. This is a comma separated list
+RE_GITHUB_APPROVE_TOKEN=ghp_xxxx        # GitHub personal access token for approving pull requests. This should be a separate user with the necessary permissions
 ```
 
 **Note:** The `RE_GITHUB_USERS` and `RE_GITHUB_ORGS` are synonymous. Both look at the first part of the repository URL. These are only two distinct options for organizing purposes.
@@ -180,6 +184,7 @@ RE_GITLAB_API=https://gitlab.com/       # GitLab URL, default is https://gitlab.
 RE_GITLAB_TOKEN=xxxx                    # GitLab personal access token. This is REQUIRED
 RE_GITLAB_USERS=SteffTek                # Filter for repositories. Only repositories from this user will be processed. This is a comma separated list
 RE_GITLAB_GROUPS=SteffTek               # Filter for repositories. Only repositories from this group will be processed. This is a comma separated list
+RE_GITLAB_APPROVE_TOKEN=xxxx            # GitLab personal access token for approving merge requests. This should be a separate user with the necessary permissions
 ```
 
 **Note:** The `RE_GITLAB_USERS` and `RE_GITLAB_GROUPS` are synonymous. Both look at the first part of the repository URL. These are only two distinct options for organizing purposes.
